@@ -1,0 +1,52 @@
+name: Build calendar feeds
+
+on:
+  schedule:
+    # 19:00 UTC daily = 6am AEDT / 5am AEST.
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - 'state/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-feeds
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate feeds
+        run: python generate.py
+
+      - name: Commit any fixture changes
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs state
+          if git diff --cached --quiet; then
+            echo "No fixture changes."
+          else
+            # DTSTAMP changes on every run; only commit when something real moved.
+            if git diff --cached -U0 -- docs \
+                 | grep -E '^[+-]' | grep -vE '^(\+\+\+|---)' \
+                 | grep -vqE '^[+-](DTSTAMP:|<footer>Last built)'; then
+              git commit -m "Update fixtures ($(date -u +%Y-%m-%d))"
+              git push
+            else
+              echo "Only timestamps changed; skipping commit."
+              git reset
+            fi
+          fi
