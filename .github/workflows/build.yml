@@ -10,6 +10,7 @@ on:
     paths-ignore:
       - 'docs/**'
       - 'state/**'
+      - 'README.md'
 
 permissions:
   contents: write
@@ -36,17 +37,37 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs state
+
           if git diff --cached --quiet; then
-            echo "No fixture changes."
-          else
-            # DTSTAMP changes on every run; only commit when something real moved.
-            if git diff --cached -U0 -- docs \
-                 | grep -E '^[+-]' | grep -vE '^(\+\+\+|---)' \
-                 | grep -vqE '^[+-](DTSTAMP:|<footer>Last built)'; then
-              git commit -m "Update fixtures ($(date -u +%Y-%m-%d))"
-              git push
-            else
-              echo "Only timestamps changed; skipping commit."
-              git reset
-            fi
+            echo "Nothing changed at all."
+            exit 0
           fi
+
+          # DTSTAMP and the page footer move on every single run. Committing
+          # those would mean a commit a day of pure noise, which defeats the
+          # point of having a readable history of fixture changes.
+          substantive=$(git diff --cached -U0 -- docs \
+            | grep -E '^[+-]' \
+            | grep -vE '^(\+\+\+|---)' \
+            | sed -E 's/^[+-][[:space:]]*//' \
+            | grep -vE '^(DTSTAMP:|<footer>Last built)' \
+            | wc -l)
+
+          if [ "$substantive" -eq 0 ]; then
+            echo "Only timestamps changed; skipping commit."
+            git reset
+            exit 0
+          fi
+
+          git commit -m "Update fixtures ($(date -u +%Y-%m-%d))"
+
+          # A concurrent run, or a manual push, may have landed first.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected; rebasing on origin/main (attempt $attempt)."
+            git pull --rebase --autostash origin main
+          done
+          echo "::error::Could not push after 3 attempts."
+          exit 1
