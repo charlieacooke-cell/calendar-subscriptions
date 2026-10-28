@@ -87,9 +87,9 @@ def build():
         ("cricket-australia-men.ics", "Australia Men's Cricket",
          "Australia men's Tests, ODIs and T20Is. Each Test day is a separate entry.",
          recent(cricket.mens_internationals(cricket_fixtures, DURATIONS["cricket"]), today)),
-        ("cricket-australia-women.ics", "Australia Women's Cricket (knockouts)",
-         "Australia women's cup knockouts only - quarter-final onwards.",
-         recent(cricket.womens_knockouts(cricket_fixtures, DURATIONS["cricket"]), today)),
+        ("cricket-australia-women.ics", "Australia Women's Cricket",
+         "Australia women's cup knockouts, plus home Tests against England or India.",
+         recent(cricket.womens_selected(cricket_fixtures, DURATIONS["cricket"]), today)),
     ]
 
     everything = []

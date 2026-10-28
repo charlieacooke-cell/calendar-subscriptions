@@ -27,6 +27,18 @@ INTERNATIONAL_FORMATS = {"Test", "ODI", "T20 International"}
 # is enough on its own to mean "tournament knockout".
 KNOCKOUT = re.compile(r"^\s*(quarter[\s-]*final|semi[\s-]*final|final|the final)\b", re.I)
 
+# Australia women's Tests are rare, and the ones worth a calendar entry are the
+# multi-format Ashes and India series. Set to False to take them away as well.
+WOMENS_TEST_OPPONENTS = {"England Women", "India Women"}
+WOMENS_TESTS_AT_HOME_ONLY = True
+
+# Deciding "is this in Australia?" off venue.state alone is not safe: CA writes
+# it inconsistently ("NSW" but also "nsw", "tas") and leaves it blank for at
+# least one Sydney ground. Every venue does carry coordinates, so check both.
+AUS_STATES = {"NSW", "VIC", "QLD", "SA", "WA", "TAS", "ACT", "NT"}
+AUS_LAT = (-44.0, -10.0)
+AUS_LON = (112.0, 154.0)
+
 
 def _fetch_year(year, completed):
     url = ("%s?year=%d&isCompleted=%s&limit=500&jsconfig=eccn:true&format=json"
@@ -54,6 +66,37 @@ def _teams(fixture):
 def _parse(stamp):
     # CA returns "2026-10-27T08:30:00Z".
     return dt.datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=dt.timezone.utc)
+
+
+def _in_australia(fixture):
+    venue = fixture.get("venue") or {}
+    if (venue.get("state") or "").strip().upper() in AUS_STATES:
+        return True
+    try:
+        lat = float(venue.get("latitude"))
+        lon = float(venue.get("longitude"))
+    except (TypeError, ValueError):
+        return False
+    return AUS_LAT[0] <= lat <= AUS_LAT[1] and AUS_LON[0] <= lon <= AUS_LON[1]
+
+
+def _is_test(fixture):
+    """True for Tests, including women's fixtures where gameType is absent.
+
+    CA reports gameType as None on essentially every women's match, so fall
+    back to the two signals that are populated: the match name and the
+    scheduled number of days.
+    """
+    if fixture.get("gameType") == "Test":
+        return True
+    if "test" in (fixture.get("name") or "").lower():
+        return True
+    return (fixture.get("numberOfDays") or 1) > 1
+
+
+def _opponent_of(fixture, team):
+    home, away = _teams(fixture)
+    return away if home == team else home
 
 
 def _venue_text(fixture):
@@ -138,18 +181,28 @@ def mens_internationals(fixtures, duration_minutes=60):
     return out
 
 
-def womens_knockouts(fixtures, duration_minutes=60):
-    """Australia women's cup knockouts only - quarter-final onwards.
+def _wanted_womens(fixture):
+    """Two rules, either of which puts an Australia women's fixture in the feed.
 
-    Note: a knockout fixture exists in the API as "TBC v TBC" until the draw is
-    settled, so an Australia match only lands in this feed once their place is
-    confirmed - typically a few days out.
+    Cup knockouts, quarter-final onwards. Note these exist in the API as
+    "TBC v TBC" until the draw is settled, so an Australia match only appears
+    once their place is confirmed - typically a few days out.
+
+    Plus Tests against England or India, at home by default.
     """
+    if KNOCKOUT.match(fixture.get("name") or ""):
+        return True
+    if _is_test(fixture) and _opponent_of(fixture, WOMENS_TEAM) in WOMENS_TEST_OPPONENTS:
+        return (not WOMENS_TESTS_AT_HOME_ONLY) or _in_australia(fixture)
+    return False
+
+
+def womens_selected(fixtures, duration_minutes=60):
     out = []
     for fixture in fixtures:
         if WOMENS_TEAM not in _teams(fixture):
             continue
-        if not KNOCKOUT.match(fixture.get("name") or ""):
+        if not _wanted_womens(fixture):
             continue
         days = fixture.get("numberOfDays") or 1
         for day in range(1, days + 1):

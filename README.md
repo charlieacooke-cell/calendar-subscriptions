@@ -8,7 +8,7 @@ daily by GitHub Actions and served from GitHub Pages.
 | `wallabies.ics` | Australia men's rugby union — Tests, The Rugby Championship, Nations Championship, Rugby World Cup, Pacific Nations Cup, British & Irish Lions |
 | `brumbies.ics` | ACT Brumbies — Super Rugby Pacific and Super Rugby AUS |
 | `cricket-australia-men.ics` | Australia men's Tests, ODIs and T20Is (one entry per Test day) |
-| `cricket-australia-women.ics` | Australia women's cup knockouts only — quarter-final onwards |
+| `cricket-australia-women.ics` | Australia women's cup knockouts (quarter-final onwards), plus home Tests against England or India |
 | `all.ics` | All of the above in one calendar |
 
 ## Where the data comes from
@@ -48,9 +48,22 @@ re-reads the current ids from the fixtures page's own filter props.
 - **Unconfirmed fixtures are marked.** Rugby AU parks a fixture with no
   announced kick-off at exactly midnight UTC; those get `[time TBC]` and
   `STATUS:TENTATIVE`.
-- **The women's feed is often empty, by design.** A cup knockout exists in the
-  API as "TBC v TBC" until the draw is settled, so an Australia semi-final only
-  appears once their place is confirmed — typically a few days out.
+- **The women's feed takes two rules**, in `_wanted_womens()`: cup knockouts
+  from the quarter-finals on, and Tests against England or India. It is often
+  empty, by design. A cup knockout exists in the API as "TBC v TBC" until the
+  draw is settled, so an Australia semi-final only appears once their place is
+  confirmed — typically a few days out. And as of October 2026 there is no
+  women's Test scheduled in Australia against either side: the only women's
+  Test on the books is the 2027 Ashes Test at Headingley. Setting
+  `WOMENS_TESTS_AT_HOME_ONLY = False` in `src/sources/cricket.py` includes
+  away Tests too, which would pick that one up.
+- **"In Australia" is decided on two signals, not one.** CA writes
+  `venue.state` inconsistently — `NSW` but also `nsw` and `tas` — and leaves it
+  blank for at least one Sydney ground, so `_in_australia()` accepts either a
+  recognised state or coordinates inside an Australian bounding box.
+- **Women's fixtures have no `gameType`.** CA reports it as `None` on
+  essentially every women's match, so `_is_test()` falls back to the match name
+  and the scheduled number of days.
 - **90 days of history** is kept so last week's result is still visible;
   anything older is dropped.
 - **Stdlib only.** No `pip install` step anywhere, in CI or locally.
