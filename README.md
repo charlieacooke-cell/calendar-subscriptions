@@ -8,7 +8,7 @@ daily by GitHub Actions and served from GitHub Pages.
 | `wallabies.ics` | Australia men's rugby union — Tests, The Rugby Championship, Nations Championship, Rugby World Cup, Pacific Nations Cup, British & Irish Lions |
 | `brumbies.ics` | ACT Brumbies — Super Rugby Pacific and Super Rugby AUS |
 | `cricket-australia-men.ics` | Australia men's Tests, ODIs and T20Is (one entry per Test day) |
-| `cricket-australia-women.ics` | Australia women's cup knockouts (quarter-final onwards), plus home Tests against England or India |
+| `cricket-australia-women.ics` | Australia women's cup knockouts (quarter-final onwards), plus Tests against England or India, home or away |
 | `all.ics` | All of the above in one calendar |
 
 ## Where the data comes from
@@ -49,14 +49,15 @@ re-reads the current ids from the fixtures page's own filter props.
   announced kick-off at exactly midnight UTC; those get `[time TBC]` and
   `STATUS:TENTATIVE`.
 - **The women's feed takes two rules**, in `_wanted_womens()`: cup knockouts
-  from the quarter-finals on, and Tests against England or India. It is often
-  empty, by design. A cup knockout exists in the API as "TBC v TBC" until the
-  draw is settled, so an Australia semi-final only appears once their place is
-  confirmed — typically a few days out. And as of October 2026 there is no
-  women's Test scheduled in Australia against either side: the only women's
-  Test on the books is the 2027 Ashes Test at Headingley. Setting
-  `WOMENS_TESTS_AT_HOME_ONLY = False` in `src/sources/cricket.py` includes
-  away Tests too, which would pick that one up.
+  from the quarter-finals on, and Tests against England or India, home or
+  away. It is often sparse, by design. A cup knockout exists in the API as
+  "TBC v TBC" until the draw is settled, so an Australia semi-final only
+  appears once their place is confirmed — typically a few days out. As of
+  October 2026 no women's Test is scheduled in Australia at all, so the one
+  Test in the feed is the 2027 Ashes Test at Headingley, which lands at the
+  Australian time it is watchable rather than its local start. Setting
+  `WOMENS_TESTS_AT_HOME_ONLY = True` in `src/sources/cricket.py` narrows the
+  rule back to home Tests only, which would empty the feed today.
 - **"In Australia" is decided on two signals, not one.** CA writes
   `venue.state` inconsistently — `NSW` but also `nsw` and `tas` — and leaves it
   blank for at least one Sydney ground, so `_in_australia()` accepts either a

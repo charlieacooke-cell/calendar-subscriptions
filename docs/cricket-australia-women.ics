@@ -4,9 +4,69 @@ PRODID:-//charliecooke//Calendar Subscriptions//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:Australia Women's Cricket
-X-WR-CALDESC:Australia women's cup knockouts\, plus home Tests against Engl
- and or India.
+X-WR-CALDESC:Australia women's cup knockouts\, plus Tests against England o
+ r India.
 X-WR-TIMEZONE:Australia/Sydney
 REFRESH-INTERVAL;VALUE=DURATION:PT12H
 X-PUBLISHED-TTL:PT12H
+BEGIN:VEVENT
+UID:e47f994ce29056ad0d98@calendar-subscriptions.charliecooke.github.io
+DTSTAMP:20261029T052418Z
+DTSTART:20270624T100000Z
+DTEND:20270624T110000Z
+SEQUENCE:0
+SUMMARY:England v Australia — Only Test (Day 1)
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+LOCATION:Headingley\, Leeds
+DESCRIPTION:Women's Ashes Test 2027\nOnly Test\nDay 1 of 4\n\nSource: crick
+ et.com.au
+URL:https://www.cricket.com.au/matches
+CATEGORIES:Cricket,Australia Women
+END:VEVENT
+BEGIN:VEVENT
+UID:607e43577915ec44313e@calendar-subscriptions.charliecooke.github.io
+DTSTAMP:20261029T052418Z
+DTSTART:20270625T100000Z
+DTEND:20270625T110000Z
+SEQUENCE:0
+SUMMARY:England v Australia — Only Test (Day 2)
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+LOCATION:Headingley\, Leeds
+DESCRIPTION:Women's Ashes Test 2027\nOnly Test\nDay 2 of 4\n\nSource: crick
+ et.com.au
+URL:https://www.cricket.com.au/matches
+CATEGORIES:Cricket,Australia Women
+END:VEVENT
+BEGIN:VEVENT
+UID:1571bca202b22ca1aa42@calendar-subscriptions.charliecooke.github.io
+DTSTAMP:20261029T052418Z
+DTSTART:20270626T100000Z
+DTEND:20270626T110000Z
+SEQUENCE:0
+SUMMARY:England v Australia — Only Test (Day 3)
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+LOCATION:Headingley\, Leeds
+DESCRIPTION:Women's Ashes Test 2027\nOnly Test\nDay 3 of 4\n\nSource: crick
+ et.com.au
+URL:https://www.cricket.com.au/matches
+CATEGORIES:Cricket,Australia Women
+END:VEVENT
+BEGIN:VEVENT
+UID:edb93d7f28e39efc07ff@calendar-subscriptions.charliecooke.github.io
+DTSTAMP:20261029T052418Z
+DTSTART:20270627T100000Z
+DTEND:20270627T110000Z
+SEQUENCE:0
+SUMMARY:England v Australia — Only Test (Day 4)
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+LOCATION:Headingley\, Leeds
+DESCRIPTION:Women's Ashes Test 2027\nOnly Test\nDay 4 of 4\n\nSource: crick
+ et.com.au
+URL:https://www.cricket.com.au/matches
+CATEGORIES:Cricket,Australia Women
+END:VEVENT
 END:VCALENDAR

@@ -28,9 +28,10 @@ INTERNATIONAL_FORMATS = {"Test", "ODI", "T20 International"}
 KNOCKOUT = re.compile(r"^\s*(quarter[\s-]*final|semi[\s-]*final|final|the final)\b", re.I)
 
 # Australia women's Tests are rare, and the ones worth a calendar entry are the
-# multi-format Ashes and India series. Set to False to take them away as well.
+# multi-format Ashes and India series - home or away, since there are so few of
+# them. Set WOMENS_TESTS_AT_HOME_ONLY back to True to keep only home Tests.
 WOMENS_TEST_OPPONENTS = {"England Women", "India Women"}
-WOMENS_TESTS_AT_HOME_ONLY = True
+WOMENS_TESTS_AT_HOME_ONLY = False
 
 # Deciding "is this in Australia?" off venue.state alone is not safe: CA writes
 # it inconsistently ("NSW" but also "nsw", "tas") and leaves it blank for at
@@ -188,7 +189,9 @@ def _wanted_womens(fixture):
     "TBC v TBC" until the draw is settled, so an Australia match only appears
     once their place is confirmed - typically a few days out.
 
-    Plus Tests against England or India, at home by default.
+    Plus Tests against England or India, home or away. Overseas ones land in
+    the calendar at the Australian time they are watchable, so a 10am start at
+    Headingley shows up as a 7pm event in Sydney.
     """
     if KNOCKOUT.match(fixture.get("name") or ""):
         return True
