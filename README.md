@@ -11,6 +11,10 @@ daily by GitHub Actions and served from GitHub Pages.
 | `cricket-australia-women.ics` | Australia women's cup knockouts (quarter-final onwards), plus Tests against England or India, home or away |
 | `all.ics` | All of the above in one calendar |
 
+`all.ics` is the one I'm actually subscribed to, so treat its path and its
+event UIDs as fixed — changing either duplicates every fixture in a live
+calendar. The per-team feeds stay published for picking out a single team.
+
 ## Where the data comes from
 
 Both sources are the keyless JSON APIs the official sites use themselves, so
